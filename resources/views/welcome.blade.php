@@ -50,7 +50,8 @@
             --btn-border: rgba(140, 127, 112, 0.2);
         }
 
-        .dark {
+        /* Match demo-editorial.html dark tokens exactly (html.dark) */
+        html.dark {
             --bg-gradient: radial-gradient(circle at top, #1a1917 0%, #11100f 100%);
             --text-primary: #f2ede4;
             --text-secondary: #a89f91;
@@ -67,10 +68,11 @@
 
         body {
             margin: 0;
+            min-height: 100vh;
             background: var(--bg-gradient);
             color: var(--text-primary);
             font-family: var(--font-sans-clean) !important;
-            transition: background 0.45s ease, color 0.45s ease;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
         .font-editorial {
@@ -118,21 +120,6 @@
             font-weight: 500;
         }
 
-        .signature {
-            font-size: 0.75rem;
-            letter-spacing: 0.22em;
-            color: var(--text-primary);
-            opacity: 0.6;
-        }
-
-        .signature-slogan {
-            letter-spacing: 0.11em;
-            font-size: 0.62rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            opacity: 0.9;
-        }
-
         .theme-btn {
             position: fixed;
             top: 1.5rem;
@@ -176,10 +163,6 @@
 
         .fade-up-delay {
             animation: fadeUpSlow 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
-        }
-
-        .fade-up-delay-2 {
-            animation: fadeUpSlow 1.3s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
         }
 
         .skeleton {
@@ -234,14 +217,6 @@
                 x-text="loading ? '' : referenceLine"
             ></p>
         </div>
-
-        <footer class="mt-24 fade-up-delay-2 text-center">
-            <p
-                class="signature font-editorial mb-2"
-                style="font-family: 'Playfair Display', Georgia, serif;"
-            >UMBRAL</p>
-            <p class="signature-slogan font-sans-clean">Un verso que te acompaña hoy</p>
-        </footer>
     </main>
 
     <script>
