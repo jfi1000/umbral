@@ -6,11 +6,11 @@
     <meta name="description" content="UMBRAL — Un verso que te acompaña hoy">
     <title>UMBRAL</title>
 
-    {{-- Google Fonts: load before Tailwind so faces are available; CSS rules come after Tailwind --}}
+    {{-- Editorial demo typography: Playfair Display + Inter --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Tenor+Sans&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap"
         rel="stylesheet"
     >
 
@@ -21,28 +21,25 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        tenor: ['"Tenor Sans"', 'Georgia', '"Times New Roman"', 'serif'],
-                        jakarta: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                        editorial: ['"Playfair Display"', 'Georgia', 'serif'],
+                        'sans-clean': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
                     },
                     colors: {
                         brand: '#9c8974',
                     },
                 },
             },
-            corePlugins: {
-                // Keep preflight; our !important font rules below beat it.
-            },
         };
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    {{-- Placed AFTER Tailwind CDN so cascade wins over injected preflight/utilities --}}
+    {{-- AFTER Tailwind CDN so preflight cannot wipe font-family --}}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Tenor+Sans&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
 
         :root {
-            --font-verse: 'Tenor Sans', Georgia, 'Times New Roman', serif;
-            --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+            --font-editorial: 'Playfair Display', Georgia, serif;
+            --font-sans-clean: 'Inter', system-ui, -apple-system, sans-serif;
             --bg-gradient: radial-gradient(circle at top, #fdfbf7 0%, #f3eee5 100%);
             --text-primary: #1f1c19;
             --text-secondary: #6e6357;
@@ -72,29 +69,30 @@
             margin: 0;
             background: var(--bg-gradient);
             color: var(--text-primary);
-            font-family: var(--font-ui) !important;
+            font-family: var(--font-sans-clean) !important;
             transition: background 0.45s ease, color 0.45s ease;
         }
 
-        .brand-mark,
-        .verse-text,
-        .signature {
-            font-family: var(--font-verse) !important;
+        .font-editorial {
+            font-family: var(--font-editorial) !important;
+        }
+
+        .font-sans-clean {
+            font-family: var(--font-sans-clean) !important;
+        }
+
+        .brand-mark {
+            letter-spacing: 0.28em;
+            color: #9c8974;
+            font-size: 0.95rem;
         }
 
         .verse-text {
             font-size: clamp(1.85rem, 4.5vw, 3.35rem);
             line-height: 1.38;
-            font-weight: 400;
+            font-weight: 500;
             color: var(--text-primary);
-            letter-spacing: 0.01em;
-        }
-
-        .meta-label,
-        .reference,
-        .signature-slogan,
-        .theme-btn {
-            font-family: var(--font-ui) !important;
+            letter-spacing: -0.01em;
         }
 
         .meta-label {
@@ -103,12 +101,6 @@
             color: var(--text-muted);
             font-size: 0.72rem;
             font-weight: 500;
-        }
-
-        .brand-mark {
-            letter-spacing: 0.28em;
-            color: #9c8974;
-            font-size: 0.95rem;
         }
 
         .divider {
@@ -123,6 +115,7 @@
             letter-spacing: 0.08em;
             color: var(--text-secondary);
             text-transform: uppercase;
+            font-weight: 500;
         }
 
         .signature {
@@ -197,7 +190,7 @@
 <body>
     <button
         type="button"
-        class="theme-btn"
+        class="theme-btn font-sans-clean"
         @click="toggleTheme()"
         :aria-label="theme === 'dark' ? 'Cambiar a tema papel' : 'Cambiar a tema noche'"
     >
@@ -218,16 +211,16 @@
     <main class="min-h-screen flex flex-col items-center justify-center px-6 py-20">
         <div class="w-full max-w-3xl text-center">
             <p
-                class="brand-mark fade-up mb-10"
-                style="font-family: 'Tenor Sans', Georgia, 'Times New Roman', serif;"
+                class="brand-mark font-editorial fade-up mb-10"
+                style="font-family: 'Playfair Display', Georgia, serif;"
             >UMBRAL</p>
 
-            <p class="meta-label fade-up mb-8">Un verso que te acompaña hoy</p>
+            <p class="meta-label font-sans-clean fade-up mb-8">Un verso que te acompaña hoy</p>
 
             <div class="fade-up-delay min-h-[8rem] flex items-center justify-center">
                 <p
-                    class="verse-text"
-                    style="font-family: 'Tenor Sans', Georgia, 'Times New Roman', serif;"
+                    class="verse-text font-editorial"
+                    style="font-family: 'Playfair Display', Georgia, serif;"
                     :class="{ 'skeleton': loading }"
                     x-text="loading ? '…' : (verse?.text || '')"
                 ></p>
@@ -236,7 +229,7 @@
             <div class="divider fade-up-delay"></div>
 
             <p
-                class="reference fade-up-delay"
+                class="reference font-sans-clean fade-up-delay"
                 :class="{ 'skeleton': loading }"
                 x-text="loading ? '' : referenceLine"
             ></p>
@@ -244,10 +237,10 @@
 
         <footer class="mt-24 fade-up-delay-2 text-center">
             <p
-                class="signature mb-2"
-                style="font-family: 'Tenor Sans', Georgia, 'Times New Roman', serif;"
+                class="signature font-editorial mb-2"
+                style="font-family: 'Playfair Display', Georgia, serif;"
             >UMBRAL</p>
-            <p class="signature-slogan">Un verso que te acompaña hoy</p>
+            <p class="signature-slogan font-sans-clean">Un verso que te acompaña hoy</p>
         </footer>
     </main>
 
