@@ -6,9 +6,13 @@
     <meta name="description" content="UMBRAL — Un verso que te acompaña hoy">
     <title>UMBRAL</title>
 
+    {{-- Google Fonts: load before Tailwind so faces are available; CSS rules come after Tailwind --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Tenor+Sans&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Tenor+Sans&display=swap"
+        rel="stylesheet"
+    >
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -17,20 +21,28 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        tenor: ['"Tenor Sans"', 'serif'],
-                        jakarta: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        tenor: ['"Tenor Sans"', 'Georgia', '"Times New Roman"', 'serif'],
+                        jakarta: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
                     },
                     colors: {
                         brand: '#9c8974',
                     },
                 },
             },
+            corePlugins: {
+                // Keep preflight; our !important font rules below beat it.
+            },
         };
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    {{-- Placed AFTER Tailwind CDN so cascade wins over injected preflight/utilities --}}
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Tenor+Sans&display=swap');
+
         :root {
+            --font-verse: 'Tenor Sans', Georgia, 'Times New Roman', serif;
+            --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
             --bg-gradient: radial-gradient(circle at top, #fdfbf7 0%, #f3eee5 100%);
             --text-primary: #1f1c19;
             --text-secondary: #6e6357;
@@ -60,12 +72,17 @@
             margin: 0;
             background: var(--bg-gradient);
             color: var(--text-primary);
-            font-family: "Plus Jakarta Sans", sans-serif;
+            font-family: var(--font-ui) !important;
             transition: background 0.45s ease, color 0.45s ease;
         }
 
+        .brand-mark,
+        .verse-text,
+        .signature {
+            font-family: var(--font-verse) !important;
+        }
+
         .verse-text {
-            font-family: "Tenor Sans", serif;
             font-size: clamp(1.85rem, 4.5vw, 3.35rem);
             line-height: 1.38;
             font-weight: 400;
@@ -73,8 +90,14 @@
             letter-spacing: 0.01em;
         }
 
+        .meta-label,
+        .reference,
+        .signature-slogan,
+        .theme-btn {
+            font-family: var(--font-ui) !important;
+        }
+
         .meta-label {
-            font-family: "Plus Jakarta Sans", sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.11em;
             color: var(--text-muted);
@@ -83,7 +106,6 @@
         }
 
         .brand-mark {
-            font-family: "Tenor Sans", serif;
             letter-spacing: 0.28em;
             color: #9c8974;
             font-size: 0.95rem;
@@ -97,7 +119,6 @@
         }
 
         .reference {
-            font-family: "Plus Jakarta Sans", sans-serif;
             font-size: clamp(0.875rem, 1.5vw, 1rem);
             letter-spacing: 0.08em;
             color: var(--text-secondary);
@@ -105,7 +126,6 @@
         }
 
         .signature {
-            font-family: "Tenor Sans", serif;
             font-size: 0.75rem;
             letter-spacing: 0.22em;
             color: var(--text-primary);
@@ -114,7 +134,6 @@
 
         .signature-slogan {
             letter-spacing: 0.11em;
-            font-family: "Plus Jakarta Sans", sans-serif;
             font-size: 0.62rem;
             text-transform: uppercase;
             color: var(--text-muted);
@@ -136,7 +155,6 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             color: var(--text-secondary);
-            font-family: "Plus Jakarta Sans", sans-serif;
             font-size: 0.75rem;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -199,13 +217,17 @@
 
     <main class="min-h-screen flex flex-col items-center justify-center px-6 py-20">
         <div class="w-full max-w-3xl text-center">
-            <p class="brand-mark fade-up mb-10">UMBRAL</p>
+            <p
+                class="brand-mark fade-up mb-10"
+                style="font-family: 'Tenor Sans', Georgia, 'Times New Roman', serif;"
+            >UMBRAL</p>
 
             <p class="meta-label fade-up mb-8">Un verso que te acompaña hoy</p>
 
             <div class="fade-up-delay min-h-[8rem] flex items-center justify-center">
                 <p
                     class="verse-text"
+                    style="font-family: 'Tenor Sans', Georgia, 'Times New Roman', serif;"
                     :class="{ 'skeleton': loading }"
                     x-text="loading ? '…' : (verse?.text || '')"
                 ></p>
@@ -221,7 +243,10 @@
         </div>
 
         <footer class="mt-24 fade-up-delay-2 text-center">
-            <p class="signature mb-2">UMBRAL</p>
+            <p
+                class="signature mb-2"
+                style="font-family: 'Tenor Sans', Georgia, 'Times New Roman', serif;"
+            >UMBRAL</p>
             <p class="signature-slogan">Un verso que te acompaña hoy</p>
         </footer>
     </main>
