@@ -211,11 +211,17 @@
 
             <div class="divider fade-up-delay"></div>
 
-            <p
-                class="reference font-sans-clean fade-up-delay"
-                :class="{ 'skeleton': loading }"
-                x-text="loading ? '' : referenceLine"
-            ></p>
+            <div class="fade-up-delay" :class="{ 'skeleton': loading }">
+                <p
+                    class="reference font-sans-clean"
+                    x-text="loading ? '' : citation"
+                ></p>
+                <p
+                    class="font-sans-clean"
+                    style="margin-top: 0.45rem; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); opacity: 0.75;"
+                    x-text="loading ? '' : versionLabel"
+                ></p>
+            </div>
         </div>
     </main>
 
@@ -226,13 +232,18 @@
                 loading: true,
                 verse: null,
 
-                get referenceLine() {
+                get citation() {
                     if (!this.verse) return '';
                     const book = this.verse.book || '';
                     const chapter = this.verse.chapter;
                     const verse = this.verse.verse;
-                    return `${book} ${chapter}:${verse} · BJ · Jerusalén`;
+                    return `${book} ${chapter}:${verse}`;
                 },
+
+                get versionLabel() {
+                    return 'Biblia de Jerusalén';
+                },
+
 
                 init() {
                     const storedTheme = localStorage.getItem('umbral-theme');
