@@ -231,7 +231,7 @@
                     const book = this.verse.book || '';
                     const chapter = this.verse.chapter;
                     const verse = this.verse.verse;
-                    return `${book} ${chapter}:${verse} · RV1960`;
+                    return `${book} ${chapter}:${verse} · BJ · Jerusalén`;
                 },
 
                 init() {

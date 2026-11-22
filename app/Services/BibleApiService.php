@@ -14,16 +14,20 @@ class BibleApiService
 
     private const MAX_API_ATTEMPTS = 5;
 
+    /**
+     * Default: EvanBible Biblia de Jerusalén (BJ).
+     * Note: that host currently lists 66 books (no deuterocanonicals via API).
+     */
     private function baseUrl(): string
     {
         return rtrim((string) env(
             'BIBLE_API_BASE_URL',
-            'https://ajphchgh0i.execute-api.us-west-2.amazonaws.com/dev/api'
+            'https://evanbible.com/api/v1/bj'
         ), '/');
     }
 
     /**
-     * Pick a random verse from the Spanish Bible API (RV1960),
+     * Pick a random verse from the Catholic Spanish Bible API (BJ),
      * falling back to curated seed verses on failure.
      *
      * @return array{text: string, reference: string, book: string, chapter: int, verse: int}
@@ -49,71 +53,125 @@ class BibleApiService
      */
     private function fetchRandomFromApi(): ?array
     {
-        $books = Http::timeout(5)
+        // Prefer the API's random endpoint, then fall back to book/chapter sampling.
+        for ($attempt = 0; $attempt < self::MAX_API_ATTEMPTS; $attempt++) {
+            $picked = $this->fetchViaRandomEndpoint() ?? $this->fetchViaBookSampling();
+            if ($picked !== null) {
+                return $picked;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{text: string, reference: string, book: string, chapter: int, verse: int}|null
+     */
+    private function fetchViaRandomEndpoint(): ?array
+    {
+        $payload = Http::timeout(5)
+            ->acceptJson()
+            ->get($this->baseUrl().'/random')
+            ->throw()
+            ->json();
+
+        if (! ($payload['ok'] ?? false)) {
+            return null;
+        }
+
+        $text = trim((string) ($payload['text'] ?? ''));
+        if (mb_strlen($text) < self::MIN_TEXT_LENGTH) {
+            return null;
+        }
+
+        $book = (string) ($payload['book_name'] ?? '');
+        $chapter = (int) ($payload['chapter'] ?? 0);
+        $verse = (int) ($payload['verse'] ?? 0);
+
+        if ($book === '' || $chapter < 1 || $verse < 1) {
+            return null;
+        }
+
+        return [
+            'text' => $text,
+            'reference' => (string) ($payload['reference'] ?? sprintf('%s %d:%d', $book, $chapter, $verse)),
+            'book' => $book,
+            'chapter' => $chapter,
+            'verse' => $verse,
+        ];
+    }
+
+    /**
+     * @return array{text: string, reference: string, book: string, chapter: int, verse: int}|null
+     */
+    private function fetchViaBookSampling(): ?array
+    {
+        $booksPayload = Http::timeout(5)
             ->acceptJson()
             ->get($this->baseUrl().'/books')
             ->throw()
             ->json();
 
+        $books = $booksPayload['books'] ?? null;
         if (! is_array($books) || $books === []) {
             return null;
         }
 
-        for ($attempt = 0; $attempt < self::MAX_API_ATTEMPTS; $attempt++) {
-            $book = $books[array_rand($books)];
-            $chapters = $book['chapters'] ?? [];
-
-            if (! is_array($chapters) || $chapters === []) {
-                continue;
-            }
-
-            $chapterMeta = $chapters[array_rand($chapters)];
-            $chapter = (int) ($chapterMeta['chapter'] ?? 0);
-            $bookSlug = $this->bookSlug($book['id'] ?? '');
-
-            if ($bookSlug === '' || $chapter < 1) {
-                continue;
-            }
-
-            $verses = Http::timeout(5)
-                ->acceptJson()
-                ->get($this->baseUrl()."/books/{$bookSlug}/chapters/{$chapter}/verses")
-                ->throw()
-                ->json();
-
-            if (! is_array($verses) || $verses === []) {
-                continue;
-            }
-
-            $eligible = array_values(array_filter($verses, function ($item) {
-                $text = $this->extractVerseText($item);
-
-                return mb_strlen(trim($text)) >= self::MIN_TEXT_LENGTH;
-            }));
-
-            if ($eligible === []) {
-                continue;
-            }
-
-            $picked = $eligible[array_rand($eligible)];
-            $text = trim($this->extractVerseText($picked));
-            $verseNumber = (int) ($picked['verse'] ?? $picked['number'] ?? $picked['verse_number'] ?? 0);
-            $bookName = (string) ($book['name'] ?? $bookSlug);
-
-            if ($verseNumber < 1 || $text === '') {
-                continue;
-            }
-
-            return [
-                'text' => $text,
-                'reference' => sprintf('%s %d:%d', $bookName, $chapter, $verseNumber),
-                'book' => $bookName,
-                'chapter' => $chapter,
-                'verse' => $verseNumber,
-            ];
+        $book = $books[array_rand($books)];
+        $bookId = (int) ($book['id'] ?? 0);
+        $bookName = (string) ($book['name'] ?? '');
+        if ($bookId < 1 || $bookName === '') {
+            return null;
         }
 
-        return null;
+        $meta = Http::timeout(5)
+            ->acceptJson()
+            ->get($this->baseUrl().'/'.$bookId)
+            ->throw()
+            ->json();
+
+        $chapters = (int) ($meta['chapters'] ?? 0);
+        if ($chapters < 1) {
+            return null;
+        }
+
+        $chapter = random_int(1, $chapters);
+
+        $chapterPayload = Http::timeout(5)
+            ->acceptJson()
+            ->get($this->baseUrl()."/{$bookId}/{$chapter}")
+            ->throw()
+            ->json();
+
+        $verses = $chapterPayload['verses'] ?? null;
+        if (! is_array($verses) || $verses === []) {
+            return null;
+        }
+
+        $eligible = array_values(array_filter($verses, function ($item) {
+            $text = trim((string) ($item['text'] ?? ''));
+
+            return mb_strlen($text) >= self::MIN_TEXT_LENGTH;
+        }));
+
+        if ($eligible === []) {
+            return null;
+        }
+
+        $picked = $eligible[array_rand($eligible)];
+        $text = trim((string) $picked['text']);
+        $verseNumber = (int) ($picked['verse'] ?? 0);
+        if ($verseNumber < 1) {
+            return null;
+        }
+
+        return [
+            'text' => $text,
+            'reference' => sprintf('%s %d:%d', $bookName, $chapter, $verseNumber),
+            'book' => $bookName,
+            'chapter' => $chapter,
+            'verse' => $verseNumber,
+        ];
     }
 
     /**
@@ -138,7 +196,7 @@ class BibleApiService
 
         if (! $seed) {
             return [
-                'text' => 'Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.',
+                'text' => 'Porque tanto amó Dios al mundo que dio a su Hijo único, para que todo el que crea en él no perezca, sino que tenga vida eterna.',
                 'reference' => 'Juan 3:16',
                 'book' => 'Juan',
                 'chapter' => 3,
@@ -153,29 +211,5 @@ class BibleApiService
             'chapter' => (int) $seed->chapter,
             'verse' => (int) $seed->verse,
         ];
-    }
-
-    private function bookSlug(string $id): string
-    {
-        if (str_contains($id, ':')) {
-            return substr($id, strrpos($id, ':') + 1);
-        }
-
-        return $id;
-    }
-
-    private function extractVerseText(mixed $item): string
-    {
-        if (! is_array($item)) {
-            return is_string($item) ? $item : '';
-        }
-
-        foreach (['text', 'verse_text', 'content', 'value'] as $key) {
-            if (isset($item[$key]) && is_string($item[$key])) {
-                return $item[$key];
-            }
-        }
-
-        return '';
     }
 }
