@@ -34,26 +34,22 @@ class BibleApiService
      */
     public function getRandomVerse(?string $visitorHash = null): array
     {
-        $seed = $this->getSeedFallback($visitorHash);
-
-        // Only hit the live API when seeds were empty and we got the hardcoded Juan 3:16.
-        if (($seed['book'] ?? '') === 'Juan'
-            && (int) ($seed['chapter'] ?? 0) === 3
-            && (int) ($seed['verse'] ?? 0) === 16
-        ) {
-            try {
-                $verse = $this->fetchRandomFromApi();
-                if ($verse !== null) {
-                    return $verse;
-                }
-            } catch (Throwable $e) {
-                Log::warning('Bible API unavailable after seed miss.', [
-                    'message' => $e->getMessage(),
-                ]);
+        try {
+            $verse = $this->fetchRandomFromApi();
+            if ($verse !== null) {
+                return $verse;
             }
+
+            Log::warning('Bible API unavailable, falling back to seed.', [
+                'message' => 'null response',
+            ]);
+        } catch (Throwable $e) {
+            Log::warning('Bible API unavailable, falling back to seed.', [
+                'message' => $e->getMessage(),
+            ]);
         }
 
-        return $seed;
+        return $this->getSeedFallback($visitorHash);
     }
 
     /**
