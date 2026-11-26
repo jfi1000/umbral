@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="UMBRAL — Un verso que te acompaña hoy">
+    <meta name="description" content="UMBRAL — Un versículo que te acompaña hoy">
     <title>UMBRAL</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="/favicon.png">
@@ -200,7 +200,7 @@
                 style="font-family: 'Playfair Display', Georgia, serif;"
             >UMBRAL</p>
 
-            <p class="meta-label font-sans-clean fade-up mb-8">Un verso que te acompaña hoy</p>
+            <p class="meta-label font-sans-clean fade-up mb-8">Un versículo que te acompaña hoy</p>
 
             <div class="fade-up-delay min-h-[8rem] flex items-center justify-center">
                 <p
