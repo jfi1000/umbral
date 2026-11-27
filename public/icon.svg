@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="UMBRAL">
+  <!-- Soft stone background; warm mark. ~20% safe margin for iOS mask. -->
+  <rect width="512" height="512" fill="#f5f0ea"/>
+  <g
+    fill="none"
+    stroke="#6b5a48"
+    stroke-width="22"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+  >
+    <!-- Outer Roman arch + base -->
+    <path d="M128 400 V256 A128 128 0 0 1 384 256 V400 H128 Z"/>
+    <!-- Inner concentric arch -->
+    <path d="M168 400 V256 A88 88 0 0 1 344 256 V400"/>
+    <!-- Vertical axis (inner crown to base) -->
+    <line x1="256" y1="168" x2="256" y2="400"/>
+    <!-- Horizontal crossbar (lower third) -->
+    <line x1="128" y1="328" x2="384" y2="328"/>
+  </g>
+  <!-- Central pane square at the crossing -->
+  <rect
+    x="232"
+    y="304"
+    width="48"
+    height="48"
+    fill="none"
+    stroke="#6b5a48"
+    stroke-width="18"
+  />
+</svg>
